@@ -17,11 +17,10 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- TOP NAVIGATION HEADER WITH RIELTA LOGO -->
+  <!-- NAVIGATION HEADER -->
   <header class="bg-navy-900 text-white shadow-xl border-b border-gray-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-4">
-        <!-- RIELTA LOGO -->
         <div class="bg-white px-3 py-1.5 rounded-lg flex items-center justify-center shadow">
           <span class="text-blue-900 font-black text-2xl tracking-wider font-sans">RIELTA</span>
         </div>
@@ -31,18 +30,22 @@
         </div>
       </div>
       
-      <!-- LOGGED IN USER INFO -->
-      <div id="userInfo" class="hidden flex items-center space-x-4">
-        <span id="roleBadge" class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-600 text-white shadow"></span>
-        <span id="userName" class="text-base font-semibold text-gray-200"></span>
-        <button onclick="logout()" class="text-sm bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition shadow">
-          <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Logout
+      <!-- USER PROFILE & ADMIN LOGS -->
+      <div id="userInfo" class="hidden flex items-center space-x-3">
+        <button id="adminLogsBtn" onclick="openLogsModal()" class="hidden text-xs bg-purple-700 hover:bg-purple-600 text-white font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center">
+          <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Login Activity
+        </button>
+
+        <span id="roleBadge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-600 text-white shadow"></span>
+        <span id="userName" class="text-sm font-semibold text-gray-200"></span>
+        <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-2 rounded-lg transition shadow">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
         </button>
       </div>
     </div>
   </header>
 
-  <!-- LOGIN SCREEN -->
+  <!-- LOGIN SECTION -->
   <div id="loginSection" class="flex-1 flex items-center justify-center p-4">
     <div class="bg-card rounded-2xl shadow-2xl p-8 max-w-md w-full border border-gray-800">
       <div class="text-center mb-8">
@@ -55,8 +58,8 @@
 
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
         <div>
-          <label class="block text-xs font-bold text-gray-300 uppercase mb-2">Login ID (Email)</label>
-          <input type="email" id="loginEmail" required class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 text-white outline-none text-base" placeholder="dealer@detector.com">
+          <label class="block text-xs font-bold text-gray-300 uppercase mb-2">Login Email</label>
+          <input type="email" id="loginEmail" required class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 text-white outline-none text-base" placeholder="onkarsap05@gmail.com">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-300 uppercase mb-2">Password</label>
@@ -71,8 +74,6 @@
 
   <!-- MAIN DASHBOARD -->
   <main id="dashboardSection" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-    
-    <!-- CATEGORY FILTER & SEARCH -->
     <div class="bg-card p-5 rounded-2xl shadow-lg border border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center">
       <div class="flex flex-wrap gap-2.5" id="categoryFilterContainer">
         <button onclick="filterCategory('All')" class="cat-btn px-5 py-2 text-sm font-bold rounded-xl bg-blue-600 text-white shadow">All Detectors</button>
@@ -88,11 +89,27 @@
       </div>
     </div>
 
-    <!-- PRODUCT CATALOG GRID -->
     <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </main>
 
-  <!-- VIDEO MODAL -->
+  <!-- ADMIN LOGIN LOGS MODAL -->
+  <div id="logsModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-card rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-gray-700 flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
+        <div>
+          <h3 class="font-extrabold text-xl text-white flex items-center">
+            <i class="fa-solid fa-users-viewfinder text-purple-400 mr-2.5"></i> Authentication Activity Logs
+          </h3>
+          <p class="text-xs text-gray-400">Real-time user logins synced with Google Sheets.</p>
+        </div>
+        <button onclick="closeLogsModal()" class="text-gray-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="logsTableContainer" class="overflow-y-auto flex-1 rounded-xl border border-gray-800 bg-gray-900/60 p-2"></div>
+    </div>
+  </div>
+
+  <!-- VIDEO POPUP MODAL -->
   <div id="videoModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-card rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-gray-700 relative">
       <div class="p-4 bg-navy-900 text-white flex justify-between items-center border-b border-gray-800">
@@ -103,37 +120,8 @@
     </div>
   </div>
 
-  <!-- ADMIN PRICE EDIT MODAL -->
-  <div id="editPriceModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-700">
-      <h3 class="font-extrabold text-xl text-white mb-1" id="editModalProductName">Update Rates (INR ₹)</h3>
-      <p class="text-xs text-gray-400 mb-5">Changes sync directly to your Google Sheet database.</p>
-      
-      <form onsubmit="savePriceChanges(event)" class="space-y-4">
-        <input type="hidden" id="editProductId">
-        <div>
-          <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Distributor Rate (₹)</label>
-          <input type="number" id="editDistRate" step="0.01" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-base text-white outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Dealer Rate (₹)</label>
-          <input type="number" id="editDealerRate" step="0.01" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-base text-white outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-300 uppercase mb-1">MSRP (₹)</label>
-          <input type="number" id="editMsrp" step="0.01" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-base text-white outline-none">
-        </div>
-        <div class="flex justify-end space-x-3 pt-3">
-          <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 text-xs font-bold border border-gray-600 text-gray-300 rounded-xl hover:bg-gray-800">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 text-xs font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-500 shadow">Save Rates</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- SCRIPT INTEGRATION -->
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyxJ30lunkAjAEhcCZgp7isOwg3BswgBuZPLkyEnWlwR61y5mEzD3hcC-RrBtwTS6G/exec";
+    const SCRIPT_URL = "https://script.google.com/a/macros/rielta.in/s/AKfycbyyxJ30lunkAjAEhcCZgp7isOwg3BswgBuZPLkyEnWlwR61y5mEzD3hcC-RrBtwTS6G/exec";
 
     let currentUser = null;
     let masterProducts = [];
@@ -165,7 +153,7 @@
           alert(result.message || "Invalid Login Credentials");
         }
       } catch (err) {
-        alert("Login Error: Please check your Google Apps Script deployment URL setup.");
+        alert("Login Error: Please verify Google Apps Script web app deployment settings.");
       } finally {
         btn.disabled = false;
         btn.innerText = "Login to Dashboard";
@@ -181,9 +169,62 @@
       const badge = document.getElementById('roleBadge');
       badge.innerText = currentUser.role;
 
-      if (currentUser.role === 'admin') badge.className = "px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-600 text-white";
-      else if (currentUser.role === 'distributor') badge.className = "px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white";
-      else badge.className = "px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-600 text-white";
+      if (currentUser.role === 'admin') {
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-600 text-white";
+        document.getElementById('adminLogsBtn').classList.remove('hidden');
+      } else if (currentUser.role === 'distributor') {
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white";
+        document.getElementById('adminLogsBtn').classList.add('hidden');
+      } else {
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-600 text-white";
+        document.getElementById('adminLogsBtn').classList.add('hidden');
+      }
+    }
+
+    async function openLogsModal() {
+      document.getElementById('logsModal').classList.remove('hidden');
+      const container = document.getElementById('logsTableContainer');
+      container.innerHTML = `<div class="text-center py-10"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-purple-400 mb-2"></i><p class="text-sm text-gray-400">Fetching login activity...</p></div>`;
+
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getLogs&role=${currentUser.role}`);
+        const result = await res.json();
+
+        if (result.status === "success" && result.data.length > 0) {
+          let rowsHtml = result.data.map(log => `
+            <tr class="border-b border-gray-800/60 hover:bg-gray-800/40 text-xs">
+              <td class="p-3 text-purple-300 font-mono">${log.timestamp}</td>
+              <td class="p-3 text-gray-200 font-bold">${log.name}</td>
+              <td class="p-3 text-gray-400">${log.email}</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${log.role === 'distributor' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' : 'bg-blue-950 text-blue-300 border border-blue-500/30'}">${log.role}</span></td>
+              <td class="p-3 text-gray-400 font-mono">${log.userId}</td>
+            </tr>
+          `).join('');
+
+          container.innerHTML = `
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-900 text-gray-400 text-xs uppercase font-bold border-b border-gray-800">
+                  <th class="p-3">Timestamp (IST)</th>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">Email</th>
+                  <th class="p-3">Role</th>
+                  <th class="p-3">User ID</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          `;
+        } else {
+          container.innerHTML = `<div class="text-center py-8 text-gray-400 text-sm">No login logs recorded yet.</div>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-8 text-red-400 text-sm">Failed to load login logs.</div>`;
+      }
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logsModal').classList.add('hidden');
     }
 
     async function loadProducts() {
@@ -191,7 +232,8 @@
       grid.innerHTML = `<div class="col-span-full text-center py-16"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-blue-500 mb-3"></i><p class="text-base text-gray-400">Loading detector catalog from Google Sheets...</p></div>`;
 
       try {
-        const res = await fetch(`${SCRIPT_URL}?action=getProducts&role=${currentUser.role}`);
+        const queryParams = `?action=getProducts&role=${currentUser.role}&userId=${encodeURIComponent(currentUser.id)}&userEmail=${encodeURIComponent(currentUser.email)}&userCompany=${encodeURIComponent(currentUser.company || '')}`;
+        const res = await fetch(`${SCRIPT_URL}${queryParams}`);
         const result = await res.json();
 
         if (result.status === "success") {
@@ -199,7 +241,7 @@
           renderProducts(masterProducts);
         }
       } catch (err) {
-        grid.innerHTML = `<div class="col-span-full text-center text-red-400 py-12">Failed to load product data. Check Apps Script URL permissions.</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center text-red-400 py-12">Failed to load product catalog. Check Google Apps Script URL.</div>`;
       }
     }
 
@@ -218,7 +260,6 @@
         const card = document.createElement('div');
         card.className = "bg-card rounded-2xl shadow-xl hover:shadow-2xl transition border border-gray-800 overflow-hidden flex flex-col";
 
-        // HIGH CONTRAST DARK IMAGE CONTAINER FOR WHITE DETECTORS
         const imgBlock = `
           <div class="relative h-56 bg-slate-900/90 flex items-center justify-center p-5 border-b border-gray-800">
             <img src="${p.image}" alt="${p.name}" class="max-h-full max-w-full object-contain filter drop-shadow-lg" onerror="this.src='https://via.placeholder.com/400x300/1e293b/ffffff?text=Detector+Image'">
@@ -226,7 +267,6 @@
           </div>
         `;
 
-        // VERTICAL BOLD BULLET POINTS FOR FEATURES
         const featureItems = p.features.map(f => `
           <li class="flex items-start text-sm text-gray-100 font-bold leading-normal">
             <i class="fa-solid fa-circle-dot text-blue-400 mr-2.5 mt-1 text-xs"></i>
@@ -236,14 +276,17 @@
 
         let priceBlock = "";
         if (currentUser.role === 'distributor' || currentUser.role === 'admin') {
+          const distTierTag = p.isCustomTierPrice ? `<span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded ml-1 font-bold">Special Rate</span>` : '';
+          const dealerTierTag = p.isCustomDealerPrice ? `<span class="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/40 px-1.5 py-0.5 rounded ml-1 font-bold">Region Rate</span>` : '';
+
           priceBlock = `
             <div class="bg-emerald-950/40 border border-emerald-500/30 p-3.5 rounded-xl my-4 grid grid-cols-2 gap-2 text-center">
               <div>
-                <p class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Distributor Rate</p>
+                <p class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Distributor Rate ${distTierTag}</p>
                 <p class="text-xl font-black text-emerald-300 mt-0.5">${formatINR(p.distributorPrice)}</p>
               </div>
               <div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Dealer Rate</p>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Dealer Rate ${dealerTierTag}</p>
                 <p class="text-base font-bold text-gray-300 mt-0.5">${formatINR(p.dealerPrice)}</p>
               </div>
             </div>
@@ -263,23 +306,14 @@
           `;
         }
 
-        const adminBtn = (currentUser.role === 'admin') ? `
-          <button onclick="openEditModal('${p.id}')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-lg border border-gray-700 font-bold transition">
-            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
-          </button>
-        ` : '';
-
         card.innerHTML = `
           ${imgBlock}
           <div class="p-6 flex-1 flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-start mb-1">
                 <h3 class="font-extrabold text-xl text-white tracking-wide">${p.name}</h3>
-                ${adminBtn}
               </div>
               <p class="text-xs text-blue-400 font-mono mb-4">SKU: ${p.id}</p>
-              
-              <!-- FEATURES CONTAINER -->
               <ul class="space-y-2 mb-4 bg-gray-900/80 p-3.5 rounded-xl border border-gray-800/80">${featureItems}</ul>
             </div>
             <div>
@@ -310,7 +344,6 @@
       renderProducts(filtered);
     }
 
-    // FIXES YOUTUBE ERROR 153 & GOOGLE DRIVE PERMISSION EMBEDS
     function playVideo(url, title) {
       if (!url || url.trim() === "") {
         alert("No video URL linked in Google Sheets.");
@@ -321,23 +354,16 @@
       const container = document.getElementById('modalVideoContainer');
       let embedUrl = url.trim();
 
-      // 1. Standard YouTube URLs (watch?v=ID)
       if (embedUrl.includes('youtube.com/watch?v=')) {
         const videoId = embedUrl.split('v=')[1].split('&')[0];
         embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-      } 
-      // 2. Shortened YouTube URLs (youtu.be/ID)
-      else if (embedUrl.includes('youtu.be/')) {
+      } else if (embedUrl.includes('youtu.be/')) {
         const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
         embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-      }
-      // 3. YouTube Shorts URLs (youtube.com/shorts/ID)
-      else if (embedUrl.includes('youtube.com/shorts/')) {
+      } else if (embedUrl.includes('youtube.com/shorts/')) {
         const videoId = embedUrl.split('shorts/')[1].split('?')[0];
         embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-      }
-      // 4. Google Drive Video Links (/file/d/ID/view)
-      else if (embedUrl.includes('drive.google.com')) {
+      } else if (embedUrl.includes('drive.google.com')) {
         embedUrl = embedUrl.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
       }
 
@@ -356,44 +382,6 @@
     function closeVideoModal() {
       document.getElementById('videoModal').classList.add('hidden');
       document.getElementById('modalVideoContainer').innerHTML = "";
-    }
-
-    function openEditModal(productId) {
-      const prod = masterProducts.find(p => p.id === productId);
-      if (!prod) return;
-      document.getElementById('editProductId').value = prod.id;
-      document.getElementById('editModalProductName').innerText = `Update ${prod.name}`;
-      document.getElementById('editDistRate').value = prod.distributorPrice || 0;
-      document.getElementById('editDealerRate').value = prod.dealerPrice || 0;
-      document.getElementById('editMsrp').value = prod.msrp || 0;
-      document.getElementById('editPriceModal').classList.remove('hidden');
-    }
-
-    function closeEditModal() {
-      document.getElementById('editPriceModal').classList.add('hidden');
-    }
-
-    async function savePriceChanges(e) {
-      e.preventDefault();
-      const payload = {
-        action: "updatePrices",
-        productId: document.getElementById('editProductId').value,
-        distributorPrice: document.getElementById('editDistRate').value,
-        dealerPrice: document.getElementById('editDealerRate').value,
-        msrp: document.getElementById('editMsrp').value
-      };
-
-      try {
-        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        const result = await res.json();
-        if (result.status === "success") {
-          alert("Prices updated successfully!");
-          closeEditModal();
-          await loadProducts();
-        }
-      } catch (err) {
-        alert("Error updating prices.");
-      }
     }
 
     function logout() {
